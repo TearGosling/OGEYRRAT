@@ -18,6 +18,7 @@ That's exactly what this is.
 	- [ ] Feed in datasets
 		- [ ] HuggingFace support
 		- [ ] PyTorch DataLoader support
+	- [ ] Implement tokenizer(s)
 	- [ ] Implement optimizer(s)
 	- [ ] Actual process for training (zero_grad, forward, loss, backward, step)
 	- [ ] Save checkpoints
