@@ -8,6 +8,7 @@ from torch import nn
 BIG_ASS_ACTIVATION_DICTIONARY = {
     "geglu": GatedLinearUnit(nn.GELU()),
     "gelu": nn.GELU(),
+    "leakyrelu": nn.LeakyReLU(),
     "relu": nn.ReLU(),
     "swiglu": GatedLinearUnit(nn.SiLU()),
     "swish": nn.SiLU(),

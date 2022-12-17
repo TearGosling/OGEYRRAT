@@ -5,6 +5,20 @@ import torch
 
 from torch import nn
 
+from .activations import BIG_ASS_ACTIVATION_DICTIONARY as BAAD
+
+class ChosenActivation(nn.Module):
+    """
+    This is a wrapper for a chosen activation function that is in the Big-Ass Activation Dictionary (BAAD).
+    """
+    def __init__(self, activation: str):
+        super().__init__
+        self.activation = BAAD[activation]
+        
+    def forward(self, x):
+        return self.activation(x)
+ 
+
 class ChosenEmbedding(nn.Module):
     """
     Embedding. For now, it'll just be standard nn.Embedding, but having this as its own class allows for future experiments.
@@ -53,6 +67,16 @@ class PrepareQKV(nn.Module):
 class Attention(nn.Module):
     """
     Multi-head attention. Lots of fun here.
+    """
+    def __init__(self):
+        super().__init__()
+        
+    def forward(self, x):
+        raise NotImplementedError
+        
+class FeedForwardNetwork(nn.Module):
+    """
+    Feedforward network. Allows for plenty of customization... later.
     """
     def __init__(self):
         super().__init__()
