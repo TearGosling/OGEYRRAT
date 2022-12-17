@@ -11,7 +11,7 @@ People say the best way of learning AI is to play with it yourself. That's what 
 That's exactly what this is.
 
 ## To-do list:
-- [ ] Implement boilerplate code
+- [x] Implement boilerplate code
 - [ ] Implement .yaml-based config system (use OmegaConf library?)
 - [ ] Implement basic transformer architecture
 - [ ] Implement what is needed to create a basic training loop
