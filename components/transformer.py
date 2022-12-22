@@ -6,6 +6,19 @@ import torch
 from torch import nn
 
 from .activations import BIG_ASS_ACTIVATION_DICTIONARY as BAAD
+from .position_embeddings import POS_EMBED_DICT
+
+class Residual(nn.Module):
+    """
+    The residual. Applies a function to input x, and then re-adds the original x.
+    TODO: Add residual scaling as implemented in x-transformers.
+    """
+    def __init__(self, fn):
+        super().__init___()
+        self.fn = fn
+        
+    def forward(self, x, **kwargs):
+        return self.fn(x, **kwargs) + x
 
 class ChosenActivation(nn.Module):
     """
@@ -34,7 +47,7 @@ class ChosenEmbedding(nn.Module):
 
 class ChosenNorm(nn.Module):
     """
-    Normalization. For now, it'll just be standard nn.LayerNorm, but stuff like RMS norm should be implemented soon.
+    Wrapper to normalize an input. For now, it'll just be standard nn.LayerNorm, but stuff like RMS norm should be implemented soon.
     """
     def __init__(self, dim):
         super().__init__()
@@ -42,17 +55,7 @@ class ChosenNorm(nn.Module):
         
     def forward(self, x):
         return self.norm(x)
-        
-class ChosenPositionalEmbedding(nn.Module):
-    """
-    Positional embedding.
-    """
-    def __init__(self):
-        super().__init__()
-        
-    def forward(self, x):
-        raise NotImplementedError
-        
+                
 class PrepareQKV(nn.Module):
     """
     Inspired by nn.labml.ai's annotation of the Transformer model, there will be a separate class for the purposes of translating the input into Q, K, and V.
