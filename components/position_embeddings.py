@@ -7,7 +7,9 @@ POS_EMBED_DICT = {
     "t5": T5RelativePositionBias
 }
 
-# T5 relative positional bias
+# T5 relative positional bias, taken from LaMDA repo
+# ...which was already taken from lucidrains
+# lol, lmao
 
 class T5RelativePositionBias(nn.Module):
     def __init__(

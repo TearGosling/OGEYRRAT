@@ -13,13 +13,14 @@ decoder:
         mult: 4
         num_linear_layers: 2
     pos_embedding: t5
-    norm: layernorm
+    norm:
+        norm_type: layernorm
         pre_norm: True
     transformer:
+        embed_dim: 256
         num_layers: 5
     vocab_size: 32000
     
 hyperparams:
-    embed_dim: 256
     lr: 0.0001
 ...
