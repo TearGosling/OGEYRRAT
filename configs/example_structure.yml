@@ -15,7 +15,8 @@ decoder:
     pos_embedding: t5
     norm:
         norm_type: layernorm
-        pre_norm: True
+        # Trying to implement pre-norm as optional right now makes me want to go to Norway
+        # do_pre_norm: True
     transformer:
         embed_dim: 256
         num_layers: 5

@@ -32,31 +32,21 @@ class ChosenActivation(nn.Module):
         
     def forward(self, x):
         return self.activation(x)
- 
-
-class ChosenEmbedding(nn.Module):
-    """
-    Embedding. For now, it'll just be standard nn.Embedding, but having this as its own class allows for future experiments.
-    Experimenting is the whole purpose of this repo, after all.
-    """
-    def __init__(self, vocab_size, embed_size):
-        super().__init__()
-        self.embed = nn.Embedding(vocab_size, embed_size)
-        
-    def forward(self, x):
-        return self.embed(x)
         
 
 class ChosenNorm(nn.Module):
     """
     Wrapper to normalize an input. For now, it'll just be standard nn.LayerNorm, but stuff like RMS norm should be implemented soon.
+    I wanted to make this have the option of being post-norm also initially, but trying to have that now is absolute pain.
+    Pre-norm only for now, which has been reported as much better,
     """
-    def __init__(self, dim):
+    def __init__(self, dim, fn):
         super().__init__()
         self.norm = nn.LayerNorm(dim)
+        self.fn = fn
         
-    def forward(self, x):
-        return self.norm(x)
+    def forward(self, x, **kwargs):
+        return self.fn(self.norm(x), **kwargs)
         
 class Attention(nn.Module):
     """
@@ -128,31 +118,42 @@ class FeedForwardNetwork(nn.Module):
     Feedforward network. Allows for plenty of customization... later.
     TODO: Make sure to handle GLU
     """
-    def __init__(self, dim, activation, mult = 4, dropout = 0., num_linear_layers = 2):
+    def __init__(self, dim_model, activation, mult = 4, dropout = 0., num_linear_layers = 2):
         super().__init__()
-        inner_dim = int(dim * mult)
+        inner_dim = int(dim_model * mult)
         # Sanity check since inner dim is necessary
         assert num_linear_layers > 1, "Not enough linear layers in the feedforward network!"
         net = []
         # Last layer happens no matter how many come before it
         for layer in range(num_linear_layers - 1):
             is_first = layer == 0
-            layer_dim_in = dim if is_first else inner_dim
+            layer_dim_in = dim_model if is_first else inner_dim
             # Linear layer
             net.append(nn.Linear(layer_dim_in, inner_dim))
             net.append(activation)
         # Apply dropout and last layer
         net.append(nn.Dropout(dropout))
-        net.append(nn.Linear(inner_dim, dim))
+        net.append(nn.Linear(inner_dim, dim_model))
         # Construct network
         self.net = nn.Sequential(*net)
         
     def forward(self, x):
         return self.net(x)
         
-class Transformer(nn.Module):
-    def __init__(self):
+class TransformerBlock(nn.Module):
+    """
+    The transformer block, consisting of an attention layer followed by a feedforward layer.
+    It's simple for now, but will probably be more complex later.
+    """
+    # NOTE: Will kwargs work here?
+    def __init__(self, dim_model, pos_embedding, activation, norm, **kwargs):
         super().__init__()
+        attention = Attention(dim_model, pos_embedding, **attn_kwargs)
+        ffn = FeedForwardNetwork(dim_model, activation, **ffn_kwargs)
+        self.block = nn.Sequential([
+            Residual(ChosenNorm(dim_model, attention)),
+            Residual(ChosenNorm(dim_model, ffn))
+        ])
         
     def forward(self, x):
-        raise NotImplementedError
+        return self.block(x)
