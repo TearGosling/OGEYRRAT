@@ -36,9 +36,8 @@ class ChosenActivation(nn.Module):
 
 class ChosenNorm(nn.Module):
     """
-    Wrapper to normalize an input. For now, it'll just be standard nn.LayerNorm, but stuff like RMS norm should be implemented soon.
-    I wanted to make this have the option of being post-norm also initially, but trying to have that now is absolute pain.
-    Pre-norm only for now, which has been reported as much better,
+    Wrapper to normalize an input.
+    For now, it'll just be standard nn.LayerNorm, but stuff like RMS norm should be implemented soon.
     """
     def __init__(self, dim, fn):
         super().__init__()
@@ -55,16 +54,16 @@ class Attention(nn.Module):
     def __init__(self, *, dim_model, pos_embedding, heads = 8, dim_heads = 64, dropout = 0.):
         super().__init__()
         self.num_heads = heads
-        self.scale = dim_head ** -0.5 # Scale of the dot product, 1 / sqrt(d_k)
+        self.scale = dim_heads ** -0.5 # Scale of the dot product, 1 / sqrt(d_k)
         inner_dim = heads * dim_heads
         
         self.dropout = nn.Dropout(dropout)
         
         # Do a linear transformation on QKV vectors
-        self.to_q = nn.Linear(dim, inner_dim, bias = False)
+        self.to_q = nn.Linear(dim_model, inner_dim, bias = False)
         # The reason this is to dim_head * 2 is because it will be split later into k and v by .chunk(2, dim=-1)
-        self.to_kv = nn.Linear(dim, dim_head * 2, bias = False)
-        self.to_out = nn.Linear(inner_dim, dim)
+        self.to_kv = nn.Linear(dim_model, dim_heads * 2, bias = False)
+        self.to_out = nn.Linear(inner_dim, dim_model)
         
         # TODO: Figure out how to dynamically grab required parameters for a certain positional embedding
         # We'll code in T5 manually for now.
@@ -97,7 +96,9 @@ class Attention(nn.Module):
         # The dot products are now fed into the positional embeddings. In this hardcoded case, it's through T5's relative positional bias
         dot_products = self.positional_embedding(dot_products)
         
-        # The casual mask is constructed. It is there to make sure that attention heads are not dirty, filthy liars when they say they aren't cheating on the test by making connections with words they aren't supposed to have seen yet.
+        # The casual mask is constructed. It is there to make sure that attention heads
+        # are not dirty, filthy liars when they say they aren't cheating
+        # by making connections with words they aren't supposed to have seen yet.
         casual_mask = torch.ones((i, j), dtype = torch.bool, device = device).triu(j - i + 1)
         # This sets any dot products of words that aren't supposed to be predicted yet to very near 0.
         dot_products = dot_products.masked_fill(casual_mask, -torch.finfo(dot_products.dtype).max)
@@ -148,6 +149,7 @@ class TransformerBlock(nn.Module):
     # NOTE: Will kwargs work here?
     def __init__(self, dim_model, pos_embedding, activation, norm, **kwargs):
         super().__init__()
+        # TODO: transform one "**kwargs" into two different kwargs for attention and ffn
         attention = Attention(dim_model, pos_embedding, **attn_kwargs)
         ffn = FeedForwardNetwork(dim_model, activation, **ffn_kwargs)
         self.block = nn.Sequential([

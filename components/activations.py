@@ -3,18 +3,6 @@ import torch.nn.functional as F
 
 from torch import nn
 
-# Here is a giant dictionary of different activation functions you can use. The idea is you can just specify a type of activation in a .yaml config, and it'll pick out the correct activation from this.
-# It's messy, but it works.
-BIG_ASS_ACTIVATION_DICTIONARY = {
-    "geglu": GatedLinearUnit(nn.GELU()),
-    "gelu": nn.GELU(),
-    "leakyrelu": nn.LeakyReLU(),
-    "relu": nn.ReLU(),
-    "swiglu": GatedLinearUnit(nn.SiLU()),
-    "swish": nn.SiLU(),
-    "squaredrelu": SquareRelu(),
-}
-
 class GatedLinearUnit(nn.Module):
     """
     A gated linear unit. You can plug any function into this to create a variant of the GLU such as GEGLU with GELU or SwiGLU with Swish.
@@ -32,3 +20,15 @@ class SquaredRelu(nn.Module):
     """
     def forward(self, x):
         return F.relu(x) ** 2
+    
+# Here is a giant dictionary of different activation functions you can use. The idea is you can just specify a type of activation in a .yaml config, and it'll pick out the correct activation from this.
+# It's messy, but it works.
+BIG_ASS_ACTIVATION_DICTIONARY = {
+    "geglu": GatedLinearUnit(nn.GELU()),
+    "gelu": nn.GELU(),
+    "leakyrelu": nn.LeakyReLU(),
+    "relu": nn.ReLU(),
+    "swiglu": GatedLinearUnit(nn.SiLU()),
+    "swish": nn.SiLU(),
+    "squaredrelu": SquaredRelu(),
+}
